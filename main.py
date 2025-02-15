@@ -1,6 +1,6 @@
 import folium
 from folium.plugins import HeatMap
-
+#fsdlfsdlf';sd;flsd
 m = folium.Map(location=[34.7, -100], zoom_start=4)
 ship00 = folium.FeatureGroup(name="Корабли 00:00", show=False).add_to(m)
 ship01 = folium.FeatureGroup(name="Корабли 01:00", show=False).add_to(m)
