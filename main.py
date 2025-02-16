@@ -1,6 +1,7 @@
 import folium
 from folium.plugins import HeatMap
-#fsdlfsdlf';sd;flsd
+import parse
+
 m = folium.Map(location=[34.7, -100], zoom_start=4)
 ship00 = folium.FeatureGroup(name="Корабли 00:00", show=False).add_to(m)
 ship01 = folium.FeatureGroup(name="Корабли 01:00", show=False).add_to(m)
@@ -76,86 +77,80 @@ locations21 = []
 locations22 = []
 locations23 = []
 
-with open("doneAIS_2024_09_10.csv", "r") as data:
-    for line in data:
-        parts = line.strip().split(',')
-        mmsi = parts[0]
-        date_part, time_part = parts[1].split('T')
-        lat, lon = parts[2], parts[3]
-        year, month, day = date_part.split('-')
-        date = f"{day}.{month}.{year}"
-        time = time_part.replace(':', '.')
-        hours, minutes, seconds = time_part.split(':')
-        if hours == "00":
+for stroka in parse.sheet_for_map.itertuples():
+    mmsi = stroka[1]
+    hours = stroka[2].hour
+    lat, lon = stroka[3], stroka[4]
+    if hours == 0:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship00)
             locations00.append([lat,lon])
-        if hours == "01":
+    if hours == 1:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship01)
             locations01.append([lat,lon])
-        if hours == "02":
+    if hours == 2:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship02)
             locations02.append([lat,lon])
-        if hours == "03":
+    if hours == 3:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship03)
             locations03.append([lat,lon])
-        if hours == "04":
+    if hours == 4:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship04)
             locations04.append([lat,lon])
-        if hours == "05":
+    if hours == 5:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship05)
             locations05.append([lat,lon])
-        if hours == "06":
+    if hours == 6:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship06)
             locations06.append([lat,lon])
-        if hours == "07":
+    if hours == 7:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship07)
             locations07.append([lat,lon])
-        if hours == "08":
+    if hours == 8:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship08)
             locations08.append([lat,lon])
-        if hours == "09":
+    if hours == 9:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship09)
             locations09.append([lat,lon])
-        if hours == "10":
+    if hours == 10:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship10)
             locations10.append([lat,lon])
-        if hours == "11":
+    if hours == 11:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship11)
             locations11.append([lat,lon])
-        if hours == "12":
+    if hours == 12:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship12)
             locations12.append([lat,lon])
-        if hours == "13":
+    if hours == 13:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship13)
             locations13.append([lat,lon])
-        if hours == "14":
+    if hours == 14:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship14)
             locations14.append([lat,lon])
-        if hours == "15":
+    if hours == 15:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship15)
             locations15.append([lat,lon])
-        if hours == "16":
+    if hours == 16:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship16)
             locations16.append([lat,lon])
-        if hours == "17":
+    if hours == 17:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship17)
             locations17.append([lat,lon])
-        if hours == "18":
+    if hours == 18:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship18)
             locations18.append([lat,lon])
-        if hours == "19":
+    if hours == 19:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship19)
             locations19.append([lat,lon])
-        if hours == "20":
+    if hours == 20:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship20)
             locations20.append([lat,lon])
-        if hours == "21":
+    if hours == 21:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship21)
             locations21.append([lat,lon])
-        if hours == "22":
+    if hours == 22:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship22)
             locations22.append([lat,lon])
-        if hours == "23":
+    if hours == 23:
             folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship23)
             locations23.append([lat,lon])
 
@@ -185,4 +180,4 @@ HeatMap(locations22, radius=20).add_to(ro22)
 HeatMap(locations23, radius=20).add_to(ro23)
 
 folium.LayerControl().add_to(m)
-m.save("index.html")
+m.save("map.html")
