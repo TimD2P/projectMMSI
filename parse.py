@@ -15,4 +15,3 @@ sheet_for_map = sheet_result.drop(['SOG', 'COG', 'Heading', 'VesselName', 'IMO',
 sheet_for_info = sheet_result.drop(['BaseDateTime', 'LAT', 'LON', 'SOG', 'COG', 'Heading', 'IMO', 'CallSign', 'VesselType', 'Status', 'Cargo', 'TransceiverClass'], axis=1).drop_duplicates(subset=["MMSI"], keep="first")
 #sheet_for_info.info(verbose=True, show_counts=True)
 #sheet_for_info.head()
-
