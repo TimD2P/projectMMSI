@@ -1,8 +1,9 @@
 import pandas as pd
 
-sheet = pd.read_csv("AIS_2024_09_10.csv")
+sheet = pd.read_csv("AIStest.csv")
 sheet["BaseDateTime"] = pd.to_datetime(sheet["BaseDateTime"])
-
+#sheet.info()
+#sheet.head()
 sheet_sorted = sheet.sort_values(by=["BaseDateTime"])
 sheet_result = sheet_sorted.groupby(["MMSI", sheet_sorted["BaseDateTime"].dt.floor("h")], as_index=False).first()
 #sheet_result.info()
