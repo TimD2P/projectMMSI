@@ -1,6 +1,12 @@
 import folium
 from folium.plugins import HeatMap
-import parse
+import psycopg2
+
+host = "localhost"
+port = 8000
+dbname = "postgres"
+user = "postgres"
+password = "Son40788"
 
 m = folium.Map(location=[34.7, -100], zoom_start=4)
 ship00 = folium.FeatureGroup(name="Корабли 00:00", show=False).add_to(m)
@@ -77,82 +83,93 @@ locations21 = []
 locations22 = []
 locations23 = []
 
-for stroka in parse.sheet_for_map.itertuples():
-    mmsi = stroka[1]
-    hours = stroka[2].hour
-    lat, lon = stroka[3], stroka[4]
-    if hours == 0:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship00)
-            locations00.append([lat,lon])
-    if hours == 1:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship01)
-            locations01.append([lat,lon])
-    if hours == 2:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship02)
-            locations02.append([lat,lon])
-    if hours == 3:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship03)
-            locations03.append([lat,lon])
-    if hours == 4:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship04)
-            locations04.append([lat,lon])
-    if hours == 5:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship05)
-            locations05.append([lat,lon])
-    if hours == 6:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship06)
-            locations06.append([lat,lon])
-    if hours == 7:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship07)
-            locations07.append([lat,lon])
-    if hours == 8:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship08)
-            locations08.append([lat,lon])
-    if hours == 9:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship09)
-            locations09.append([lat,lon])
-    if hours == 10:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship10)
-            locations10.append([lat,lon])
-    if hours == 11:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship11)
-            locations11.append([lat,lon])
-    if hours == 12:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship12)
-            locations12.append([lat,lon])
-    if hours == 13:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship13)
-            locations13.append([lat,lon])
-    if hours == 14:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship14)
-            locations14.append([lat,lon])
-    if hours == 15:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship15)
-            locations15.append([lat,lon])
-    if hours == 16:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship16)
-            locations16.append([lat,lon])
-    if hours == 17:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship17)
-            locations17.append([lat,lon])
-    if hours == 18:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship18)
-            locations18.append([lat,lon])
-    if hours == 19:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship19)
-            locations19.append([lat,lon])
-    if hours == 20:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship20)
-            locations20.append([lat,lon])
-    if hours == 21:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship21)
-            locations21.append([lat,lon])
-    if hours == 22:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship22)
-            locations22.append([lat,lon])
-    if hours == 23:
-            folium.Marker(location=[lat, lon], tooltip="Нажми!", popup=mmsi, icon=folium.Icon(icon='flag'), ).add_to(ship23)
-            locations23.append([lat,lon])
+try:
+    connection = psycopg2.connect(host=host, port=port, database=dbname, user=user, password=password)
+    connection.autocommit = True
+    with connection.cursor() as cursor:
+        for hours in range(0,24):
+            cursor.execute(f"select * from vesselmap where extract(hour from ship_time) = {hours};")
+            for ship_map in cursor.fetchall():
+                cursor.execute(f"select * from vesselinfo where mmsi_pk =  {ship_map[0]};")
+                ship_info=cursor.fetchone()
+                if hours == 0:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship00)
+                    locations00.append([ship_map[1],ship_map[2]])
+                if hours == 1:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship01)
+                    locations01.append([ship_map[1],ship_map[2]])
+                if hours == 2:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship02)
+                    locations02.append([ship_map[1],ship_map[2]])
+                if hours == 3:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship03)
+                    locations03.append([ship_map[1],ship_map[2]])
+                if hours == 4:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship04)
+                    locations04.append([ship_map[1],ship_map[2]])
+                if hours == 5:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship05)
+                    locations05.append([ship_map[1],ship_map[2]])
+                if hours == 6:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship06)
+                    locations06.append([ship_map[1],ship_map[2]])
+                if hours == 7:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship07)
+                    locations07.append([ship_map[1],ship_map[2]])
+                if hours == 8:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship08)
+                    locations08.append([ship_map[1],ship_map[2]])
+                if hours == 9:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship09)
+                    locations09.append([ship_map[1],ship_map[2]])
+                if hours == 10:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship10)
+                    locations10.append([ship_map[1],ship_map[2]])
+                if hours == 11:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship11)
+                    locations11.append([ship_map[1],ship_map[2]])
+                if hours == 12:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship12)
+                    locations12.append([ship_map[1],ship_map[2]])
+                if hours == 13:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship13)
+                    locations13.append([ship_map[1],ship_map[2]])
+                if hours == 14:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship14)
+                    locations14.append([ship_map[1],ship_map[2]])
+                if hours == 15:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship15)
+                    locations15.append([ship_map[1],ship_map[2]])
+                if hours == 16:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship16)
+                    locations16.append([ship_map[1],ship_map[2]])
+                if hours == 17:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship17)
+                    locations17.append([ship_map[1],ship_map[2]])
+                if hours == 18:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship18)
+                    locations18.append([ship_map[1],ship_map[2]])
+                if hours == 19:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship19)
+                    locations19.append([ship_map[1],ship_map[2]])
+                if hours == 20:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship20)
+                    locations20.append([ship_map[1],ship_map[2]])
+                if hours == 21:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship21)
+                    locations21.append([ship_map[1],ship_map[2]])
+                if hours == 22:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship22)
+                    locations22.append([ship_map[1],ship_map[2]])
+                if hours == 23:
+                    folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[10]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_info[2]}</li><li><strong>Груз:</strong> {ship_info[3]}</li><li><strong>Скорость:</strong> {ship_info[4]}</li><li><strong>Курс:</strong> {ship_info[5]}</li><li><strong>Длина:</strong> {ship_info[6]}</li><li><strong>Ширина:</strong> {ship_info[7]}</li><li><strong>Осадка:</strong> {ship_info[8]}</li><li><strong>Страна:</strong> {ship_info[9]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='flag'), ).add_to(ship23)
+                    locations23.append([ship_map[1],ship_map[2]])
+except Exception as _ex:
+    print('error:',_ex)
+finally:
+    if connection:
+        connection.close()
+        print('Connection closed')
 
 HeatMap(locations00, radius=20).add_to(ro00)
 HeatMap(locations01, radius=20).add_to(ro01)
@@ -181,3 +198,4 @@ HeatMap(locations23, radius=20).add_to(ro23)
 
 folium.LayerControl().add_to(m)
 m.save("map.html")
+

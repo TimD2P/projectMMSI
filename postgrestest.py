@@ -10,14 +10,13 @@ try:
     connection = psycopg2.connect(host=host, port=port, database=dbname, user=user, password=password)
     connection.autocommit = True
     with connection.cursor() as cursor:
-        cursor.execute("insert into vesselinfo VALUES(303294060, 'ship1', 40, 40, 30.1, 287, 50, 13.6, 'ussr', 'html');")
-        print('Done')
-    with connection.cursor() as cursor:
-        cursor.execute("insert into vesselmap VALUES(303294060, 39.11292, -89.72122, timestamp '2025-09-10 00:00:00');")
-        print('Done')
-    with connection.cursor() as cursor:
-        cursor.execute(f"select * from vesselinfo where mmsi_pk = {mmsi};")
-        print(cursor.fetchall())
+        for hours in range(0,24):
+            cursor.execute(f"select * from vesselmap where extract(hour from ship_time) = {hours};")
+            for ship_map in cursor.fetchall():
+                print(ship_map[0])
+                cursor.execute(f"select * from vesselinfo where mmsi_pk =  {ship_map[0]};")
+                ship_info=cursor.fetchone()
+                print(ship_info[10])
 
 except Exception as _ex:
     print('error:',_ex)
