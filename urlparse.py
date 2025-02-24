@@ -1,8 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from time import sleep
 
-#sleep (3) спим 3 секунды в цикле
 mmsi=503000101
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0"}
 response = requests.get(url=f'https://www.vesselfinder.com/vessels/details/{mmsi}', headers=headers)
