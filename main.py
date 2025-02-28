@@ -36,5 +36,6 @@ for hour in range(24):
     HeatMap(locations[hour], radius=20).add_to(ro[hour])
 
 folium.LayerControl().add_to(m)
+
 m.save("map.html")
 
