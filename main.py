@@ -54,7 +54,7 @@ for hour in range(24):
 
 folium.LayerControl().add_to(m)
 
-MousePosition(position="bottomleft",separator=" | ",num_digits=5,prefix="Координаты:",).add_to(m)
+MousePosition(position="bottomleft",separator=" | ",num_digits=5,prefix="Текущие координаты:",).add_to(m)
 MousePosition().add_to(m)
 
 m.save("map.html")
