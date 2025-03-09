@@ -15,7 +15,7 @@ dbname = "postgres"
 user = "postgres"
 password = "Son40788"
 
-sheet = pd.read_csv("AISsmalltestV2.csv")
+sheet = pd.read_csv("AIS_2024_09_10.csv")
 sheet = sheet.fillna(0)
 
 sheet["BaseDateTime"] = pd.to_datetime(sheet["BaseDateTime"])
@@ -39,25 +39,26 @@ sheet_for_info.head()
 try:
     connection = psycopg2.connect(host=host, port=port, database=dbname, user=user, password=password)
     connection.autocommit = True
-    for stroka_info in sheet_for_info.itertuples():
-        sleep(5)
-        response = requests.get(url=f'https://www.vesselfinder.com/vessels/details/{stroka_info[1]}', headers=headers)
-        soup = BeautifulSoup(response.text, features="lxml")
-        try:
-            flag_1 = soup.find(name="table", class_="aparams")
-            flag_2 = flag_1.find("td", class_="n3", string='Flag')
-            country = flag_2.find_next_sibling('td').text
-            photourl = soup.find(name="img", class_="main-photo").get("src")
-        except:
-            pass
-            photourl = 'https://tepeseo.com/wp-content/uploads/2019/05/404notfound.png'
-            country = 'Not Found'
-        with connection.cursor() as cursor:
-            ship_name = f'{stroka_info[2]}'
-            ship_name = re.sub(pattern, '',ship_name)
-            cursor.execute(f"insert into vesselinfo VALUES({stroka_info[1]}, '{ship_name}', {stroka_info[3]}, {stroka_info[4]}, {stroka_info[5]}, {stroka_info[6]}, '{country}', '{photourl}');")
-    for stroka_map in sheet_for_map.itertuples():
-        with connection.cursor() as cursor:
+    with connection.cursor() as cursor:
+        for stroka_info in sheet_for_info.itertuples():
+            cursor.execute("select mmsi_pk from vesselinfo;")
+            if tuple({stroka_info[1]}) not in cursor.fetchall():
+                sleep(5)
+                response = requests.get(url=f'https://www.vesselfinder.com/vessels/details/{stroka_info[1]}', headers=headers)
+                soup = BeautifulSoup(response.text, features="lxml")
+                try:
+                    flag_1 = soup.find(name="table", class_="aparams")
+                    flag_2 = flag_1.find("td", class_="n3", string='Flag')
+                    country = flag_2.find_next_sibling('td').text
+                    photourl = soup.find(name="img", class_="main-photo").get("src")
+                except:
+                    pass
+                    photourl = 'https://tepeseo.com/wp-content/uploads/2019/05/404notfound.png'
+                    country = 'Not Found'
+                ship_name = f'{stroka_info[2]}'
+                ship_name = re.sub(pattern, '',ship_name)
+                cursor.execute(f"insert into vesselinfo VALUES({stroka_info[1]}, '{ship_name}', {stroka_info[3]}, {stroka_info[4]}, {stroka_info[5]}, {stroka_info[6]}, '{country}', '{photourl}');")
+        for stroka_map in sheet_for_map.itertuples():
             cursor.execute(f"insert into vesselmap VALUES({stroka_map[1]}, {stroka_map[2]}, {stroka_map[3]}, timestamp '{stroka_map[4]}', {stroka_map[5]}, {stroka_map[6]});")
 
 except Exception as _ex:
@@ -66,4 +67,3 @@ finally:
     if connection:
         connection.close()
         print('Connection closed')
-
