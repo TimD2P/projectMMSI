@@ -15,7 +15,7 @@ dbname = "postgres"
 user = "postgres"
 password = "Son40788"
 
-sheet = pd.read_csv("AIS_2024_09_10.csv")
+sheet = pd.read_csv("static/AIS_2024_09_10.csv")
 sheet = sheet.fillna(0)
 
 sheet["BaseDateTime"] = pd.to_datetime(sheet["BaseDateTime"])
