@@ -10,7 +10,7 @@ user = "postgres"
 password = "Son40788"
 
 TRACKING_MODE = 'ON'
-tracking_mmsi = 303294000
+tracking_mmsi = 210325000
 
 m = folium.Map(location=[34.7, -100], zoom_start=4)
 
@@ -25,7 +25,7 @@ try:
     connection = psycopg2.connect(host=host, port=port, database=dbname, user=user, password=password)
     connection.autocommit = True
     with connection.cursor() as cursor:
-        for hours in range(24):
+        for hours in range(2):
             cursor.execute(f"select * from vesselmap where extract(hour from ship_time) = {hours};")
             for ship_map in cursor.fetchall():
                 cursor.execute(f"select * from vesselinfo where mmsi_pk = {ship_map[0]};")
