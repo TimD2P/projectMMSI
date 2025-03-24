@@ -56,8 +56,8 @@ finally:
         connection.close()
         print('Connection closed')
 
-for hour in range(24):
-    HeatMap(locations[hour], radius=20).add_to(ro[hour])
+for hour in hourlist:
+    HeatMap(locations[hourlist.index(hour)], radius=20).add_to(ro[hourlist.index(hour)])
 
 folium.LayerControl().add_to(m)
 
