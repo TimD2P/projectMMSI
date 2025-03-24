@@ -17,9 +17,13 @@ m = folium.Map(location=[34.7, -100], zoom_start=4)
 if TRACKING_MODE == 'ON':
     tracking_ship = folium.FeatureGroup(name=f"Отслеживаемый корабль: {tracking_mmsi}", show=False).add_to(m)
 
-ships = [folium.FeatureGroup(name=f"Корабли {hour:02d}:00", show=False).add_to(m) for hour in range(24)]
-ro = [folium.FeatureGroup(name=f"Плотность {hour:02d}:00", show=False).add_to(m) for hour in range(24)]
-locations = [[] for _ in range(24)]
+if CLUSTER_MODE == 'ON':
+    ships_group = [folium.FeatureGroup(name=f"Корабли {hour:02d}:00", show=False).add_to(m) for hour in hourlist]
+    ships = [MarkerCluster(disable_clustering_at_zoom=9, spiderfy_on_max_zoom=False).add_to(ships_group[hourlist.index(hour)]) for hour in hourlist]
+else:
+    ships = [folium.FeatureGroup(name=f"Корабли {hour:02d}:00", show=False).add_to(m) for hour in hourlist]
+ro = [folium.FeatureGroup(name=f"Плотность {hour:02d}:00", show=False).add_to(m) for hour in hourlist]
+locations = [[] for hour in hourlist]
 
 try:
     connection = psycopg2.connect(host=host, port=port, database=dbname, user=user, password=password)
