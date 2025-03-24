@@ -10,7 +10,9 @@ user = "postgres"
 password = "Son40788"
 
 TRACKING_MODE = 'ON'
-tracking_mmsi = 210325000
+tracking_mmsi_list = [210325000,566644000,91800047,109090201,209470000,211107900,219671000,229708000,244022000,248968000]
+
+hourlist = [1]
 
 m = folium.Map(location=[34.7, -100], zoom_start=4)
 
