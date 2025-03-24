@@ -17,7 +17,7 @@ hourlist = [1]
 m = folium.Map(location=[34.7, -100], zoom_start=4)
 
 if TRACKING_MODE == 'ON':
-    tracking_ship = folium.FeatureGroup(name=f"Отслеживаемый корабль: {tracking_mmsi}", show=False).add_to(m)
+    tracking_ship = [folium.FeatureGroup(name=f"Отслеживаемый корабль: {tracking_mmsi}", show=False).add_to(m) for tracking_mmsi in tracking_mmsi_list]
 
 if CLUSTER_MODE == 'ON':
     ships_group = [folium.FeatureGroup(name=f"Корабли {hour:02d}:00", show=False).add_to(m) for hour in hourlist]
