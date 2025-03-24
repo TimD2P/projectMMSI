@@ -38,8 +38,8 @@ try:
                 ship_info=cursor.fetchone()
                 cursor.execute(f"select * from vesseltypeinfo where ship_type_pk = {ship_info[2]};")
                 ship_type_info=cursor.fetchone()
-                folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[7]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_type_info[1]}</li><li><strong>Детали:</strong> {ship_type_info[2]}</li><li><strong>Скорость:</strong> {ship_map[4]}</li><li><strong>Курс:</strong> {ship_map[5]}</li><li><strong>Длина:</strong> {ship_info[3]}</li><li><strong>Ширина:</strong> {ship_info[4]}</li><li><strong>Осадка:</strong> {ship_info[5]}</li><li><strong>Страна:</strong> {ship_info[6]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='location-arrow',prefix='fa', color=f'{ship_type_info[3]}',angle=round(ship_map[5])-45)).add_to(ships[hours])
-                locations[hours].append([ship_map[1],ship_map[2]])
+                folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[7]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_type_info[1]}</li><li><strong>Детали:</strong> {ship_type_info[2]}</li><li><strong>Скорость:</strong> {ship_map[4]}</li><li><strong>Курс:</strong> {ship_map[5]}</li><li><strong>Длина:</strong> {ship_info[3]}</li><li><strong>Ширина:</strong> {ship_info[4]}</li><li><strong>Осадка:</strong> {ship_info[5]}</li><li><strong>Страна:</strong> {ship_info[6]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='location-arrow',prefix='fa', color=f'{ship_type_info[3]}',angle=round(ship_map[5])-45)).add_to(ships[hourlist.index(hour)])
+                locations[hourlist.index(hour)].append([ship_map[1],ship_map[2]])
         if TRACKING_MODE == 'ON':
             cursor.execute(f"select * from vesselmap where mmsi_fk = {tracking_mmsi};")
             for tracking_ship_map in cursor.fetchall():
