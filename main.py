@@ -31,8 +31,8 @@ try:
     connection = psycopg2.connect(host=host, port=port, database=dbname, user=user, password=password)
     connection.autocommit = True
     with connection.cursor() as cursor:
-        for hours in range(2):
-            cursor.execute(f"select * from vesselmap where extract(hour from ship_time) = {hours};")
+        for hour in hourlist:
+            cursor.execute(f"select * from vesselmap where extract(hour from ship_time) = {hour};")
             for ship_map in cursor.fetchall():
                 cursor.execute(f"select * from vesselinfo where mmsi_pk = {ship_map[0]};")
                 ship_info=cursor.fetchone()
