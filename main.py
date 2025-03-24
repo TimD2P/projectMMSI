@@ -41,13 +41,14 @@ try:
                 folium.Marker(location=[ship_map[1], ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{ship_info[7]}\' width=\'300\'><li><strong>MMSI:</strong> {ship_info[0]}</li><li><strong>Позывной:</strong> {ship_info[1]}</li><li><strong>Тип корабля:</strong> {ship_type_info[1]}</li><li><strong>Детали:</strong> {ship_type_info[2]}</li><li><strong>Скорость:</strong> {ship_map[4]}</li><li><strong>Курс:</strong> {ship_map[5]}</li><li><strong>Длина:</strong> {ship_info[3]}</li><li><strong>Ширина:</strong> {ship_info[4]}</li><li><strong>Осадка:</strong> {ship_info[5]}</li><li><strong>Страна:</strong> {ship_info[6]}</li>" width="315" height="420"></iframe>', icon=folium.Icon(icon='location-arrow',prefix='fa', color=f'{ship_type_info[3]}',angle=round(ship_map[5])-45)).add_to(ships[hourlist.index(hour)])
                 locations[hourlist.index(hour)].append([ship_map[1],ship_map[2]])
         if TRACKING_MODE == 'ON':
-            cursor.execute(f"select * from vesselmap where mmsi_fk = {tracking_mmsi};")
-            for tracking_ship_map in cursor.fetchall():
-                cursor.execute(f"select * from vesselinfo where mmsi_pk = {tracking_ship_map[0]};")
-                tracking_ship_info=cursor.fetchone()
-                cursor.execute(f"select * from vesseltypeinfo where ship_type_pk = {tracking_ship_info[2]};")
-                tracking_ship_type_info = cursor.fetchone()
-                folium.Marker(location=[tracking_ship_map[1], tracking_ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{tracking_ship_info[7]}\' width=\'300\'><li><strong>MMSI:</strong> {tracking_ship_info[0]}</li><li><strong>Время:</strong> {tracking_ship_map[3]}</li><li><strong>Позывной:</strong> {tracking_ship_info[1]}</li><li><strong>Тип корабля:</strong> {tracking_ship_type_info[1]}</li><li><strong>Детали:</strong> {tracking_ship_type_info[2]}</li><li><strong>Скорость:</strong> {tracking_ship_map[4]}</li><li><strong>Курс:</strong> {tracking_ship_map[5]}</li><li><strong>Длина:</strong> {tracking_ship_info[3]}</li><li><strong>Ширина:</strong> {tracking_ship_info[4]}</li><li><strong>Осадка:</strong> {tracking_ship_info[5]}</li><li><strong>Страна:</strong> {tracking_ship_info[6]}</li>" width="315" height="420"></iframe>',icon=folium.Icon(icon='location-arrow', prefix='fa', color=f'{tracking_ship_type_info[3]}',angle=round(tracking_ship_map[5]) - 45)).add_to(tracking_ship)
+            for tracking_mmsi in tracking_mmsi_list:
+                cursor.execute(f"select * from vesselmap where mmsi_fk = {tracking_mmsi};")
+                for tracking_ship_map in cursor.fetchall():
+                    cursor.execute(f"select * from vesselinfo where mmsi_pk = {tracking_ship_map[0]};")
+                    tracking_ship_info=cursor.fetchone()
+                    cursor.execute(f"select * from vesseltypeinfo where ship_type_pk = {tracking_ship_info[2]};")
+                    tracking_ship_type_info = cursor.fetchone()
+                    folium.Marker(location=[tracking_ship_map[1], tracking_ship_map[2]], tooltip="Нажми!", popup=f'<iframe srcdoc="<img src=\'{tracking_ship_info[7]}\' width=\'300\'><li><strong>MMSI:</strong> {tracking_ship_info[0]}</li><li><strong>Время:</strong> {tracking_ship_map[3]}</li><li><strong>Позывной:</strong> {tracking_ship_info[1]}</li><li><strong>Тип корабля:</strong> {tracking_ship_type_info[1]}</li><li><strong>Детали:</strong> {tracking_ship_type_info[2]}</li><li><strong>Скорость:</strong> {tracking_ship_map[4]}</li><li><strong>Курс:</strong> {tracking_ship_map[5]}</li><li><strong>Длина:</strong> {tracking_ship_info[3]}</li><li><strong>Ширина:</strong> {tracking_ship_info[4]}</li><li><strong>Осадка:</strong> {tracking_ship_info[5]}</li><li><strong>Страна:</strong> {tracking_ship_info[6]}</li>" width="315" height="420"></iframe>',icon=folium.Icon(icon='location-arrow', prefix='fa', color=f'{tracking_ship_type_info[3]}',angle=round(tracking_ship_map[5]) - 45)).add_to(tracking_ship[tracking_mmsi_list.index(tracking_mmsi)])
 except Exception as _ex:
     print('error:',_ex)
 finally:
