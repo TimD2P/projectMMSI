@@ -2,6 +2,7 @@ import folium
 from folium.plugins import HeatMap
 import psycopg2
 from folium.plugins import MousePosition
+from folium.plugins import MarkerCluster
 
 host = "localhost"
 port = 8000
